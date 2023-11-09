@@ -13,7 +13,7 @@ from selenium.webdriver.common.keys import Keys
 import argparse
 
 #Sample Usage
-#python web.py --sw truck --s "D:/saved_img/pick_up_truck/"
+#python web.py --sw "pickup truck" --s "D:/saved_img/pick_up_truck/"
 
 #The delay here is set to let the page load
 delay = 2
