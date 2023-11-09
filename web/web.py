@@ -110,55 +110,53 @@ def download_image(path, url, file_name, image_type='PNG',verbose=True):
 
 #Search the google and return the url of the image page
 def google_search(wd,searchterm):
-    page = "http://www.google.com/"
+    page = "https://images.google.com/"
     #Go to google.com
     landing = wd.get(page)
     #Wait for a bit and sendkeys to the query box and click return
     WebDriverWait(wd, 10).until(EC.element_to_be_clickable((By.NAME,
                                     "q"))).send_keys(searchterm+Keys.RETURN)
-    #Wait for a bit and click the image tab to go to the image page
-    WebDriverWait(wd, 20).until(EC.element_to_be_clickable((By.CLASS_NAME,
-                                                "LatpMc"))).click()
 
     #Return the current url
     return wd.current_url
+if __name__ == "__main__":
+    #Arg Parse, sw=search words, s=saved path
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--sw",
+        help="This is the word that you want to search on Chrome, search words")
+    parser.add_argument("--s",
+        help="This is path of where you want to put the image. End with /")
+    args = parser.parse_args()
 
-#Arg Parse, sw=search words, s=saved path
-parser = argparse.ArgumentParser()
-parser.add_argument("--sw",
-    help="This is the word that you want to search on Chrome, search words")
-parser.add_argument("--s",
-    help="This is path of where you want to put the image. End with /")
-args = parser.parse_args()
 
+    options = Options()
+    options.headless = True
+    options.page_load_strategy = 'normal'
+    options.add_argument("--window-size=1920,1200")
+    driver = webdriver.Chrome(options=options)
 
-options = Options()
-options.headless = True
-options.page_load_strategy = 'normal'
-options.add_argument("--window-size=1920,1200")
-driver = webdriver.Chrome(options=options)
+    print(args.sw)
+    urls_image = google_search(driver,args.sw)
 
-urls_image = google_search(driver,args.sw)
-
-#Save path
-#Sample: 'D:/saved_img/pick_up_truck/'
-#The last back slash is needed
-save_path = args.s
-
-#Create a directory if it does not exist
-if not os.path.exists(save_path):
-    print(f'Make directory: {str(save_path)}')
-    os.makedirs(save_path)
-
-#Run the get image function            
-urls = get_im(driver,delay,urls_image)
-
-#For everything in image urls, download
-for i,url in enumerate(urls):
-    download_image(path=f'{save_path}',
-                   url=url,file_name=str(i+1)+'.png',verbose=True)
+    #Save path
+    #Sample: 'D:/saved_img/pick_up_truck/'
+    #The last back slash is needed
+    save_path = args.s
     
-#Close driver
-driver.quit()
-    
+    #Create a directory if it does not exist
+    if not os.path.exists(save_path):
+        print(f'Make directory: {str(save_path)}')
+        os.makedirs(save_path)
+
+    #Run the get image function            
+    urls = get_im(driver,delay,urls_image)
+
+    #For everything in image urls, download
+    for i,url in enumerate(urls):
+        download_image(path=f'{save_path}',
+                       url=url,file_name=str(i+1)+'.png',verbose=True)
+        
+    #Close driver
+    driver.quit()
+        
 #get_im(driver,delay,max_lm,pickup_truck)
