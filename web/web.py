@@ -13,7 +13,8 @@ from selenium.webdriver.common.keys import Keys
 import argparse
 
 #Sample Usage
-#python web.py --sw "pickup truck" --s "D:/saved_img/pick_up_truck/"
+#python web.py --sw
+#          "box truck, box truck upside" --s "D:/saved_img/pick_up_truck/"
 
 #The delay here is set to let the page load
 delay = 2
@@ -70,7 +71,7 @@ def get_end(wd):
     scroll(wd)
     scroll(wd)
     scroll(wd)
-    #scroll(wd)
+    scroll(wd)
     try:
         WebDriverWait(wd, 5).until(EC.element_to_be_clickable((By.CSS_SELECTOR,
                             "input[value='Show more results']"))).click()
@@ -135,8 +136,14 @@ if __name__ == "__main__":
     options.add_argument("--window-size=1920,1200")
     driver = webdriver.Chrome(options=options)
 
-    print(args.sw)
-    urls_image = google_search(driver,args.sw)
+    #if multiple search is needed
+    search_list = args.sw.split(',')
+
+    #get a set of urls from google search
+    google_urls = []
+    for i in range(len(search_list)):
+        urls_image = google_search(driver,search_list[i])
+        google_urls += [urls_image]
 
     #Save path
     #Sample: 'D:/saved_img/pick_up_truck/'
@@ -148,11 +155,14 @@ if __name__ == "__main__":
         print(f'Make directory: {str(save_path)}')
         os.makedirs(save_path)
 
-    #Run the get image function            
-    urls = get_im(driver,delay,urls_image)
+    #Run the get image function
+    union_set = set()
+    for i in range(len(google_urls)):
+        urls = get_im(driver,delay,google_urls[i])
+        union_set = union_set.union(urls)
 
     #For everything in image urls, download
-    for i,url in enumerate(urls):
+    for i,url in enumerate(union_set):
         download_image(path=f'{save_path}',
                        url=url,file_name=str(i+1)+'.png',verbose=True)
         
